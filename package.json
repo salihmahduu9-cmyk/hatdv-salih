@@ -1,18 +1,20 @@
 {
   "name": "fares-protector-compiler",
   "version": "1.0.0",
-  "description": "Ultra Fast Lua VM Compiler & Obfuscator Backend",
+  "description": "Ultra Fast Lua VM Compiler & Obfuscator Backend on Vercel",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
+    "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "fengari": "^0.1.4",
     "uuid": "^9.0.1"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "author": "Lord Zayro & Harbawi",
   "license": "ISC"
