@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FARES PROTECTOR - Fast Compiler</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0c0e17;
+            color: #e1e1e6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            text-align: center;
+        }
+        .panel {
+            background-color: #151824;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            border: 1px solid #252a3d;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #a4a9c2;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #0c0e17;
+            border: 1px solid #323952;
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box;
+            text-align: left;
+            direction: ltr;
+        }
+        button {
+            background-color: #00ffcc;
+            color: #0c0e17;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #00cca3;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+        }
+        .script-item {
+            background-color: #1a1d2e;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-right: 4px solid #00ffcc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .loadstring-box {
+            background-color: #0c0e17;
+            padding: 8px;
+            border-radius: 4px;
+            color: #ff79c6;
+            font-size: 13px;
+            word-break: break-all;
+            margin-top: 5px;
+            text-align: left;
+            direction: ltr;
+        }
+        .btn-edit {
+            background-color: #ffb86c;
+            color: #000;
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        #loadingScreen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(12, 14, 23, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #00ffcc;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            border-left-color: #00ffcc;
+            animation: spin 0.6s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loadingScreen">
+    <div class="spinner"></div>
+    <h2>اصبرررررررررررررر<h2>
+</div>
+
+<div class="container">
+    <h1>FARES PROTECTOR 🛡️ <span style="font-size: 16px; color: #6272a4;">[Fast Compiler Mode]</span></h1>
+    
+    <div class="panel">
+        <h3><%= editScript ? "تعديل السكربت الحالي" : "تشفير سكربت جديد فوراً" %></h3>
+        <form action="/protect" method="POST" onsubmit="showLoading()">
+            <input type="hidden" name="scriptId" value="<%= editScript ? editScript.id : '' %>">
+            
+            <label>اسم السكربت:</label>
+            <input type="text" name="name" required placeholder="مثال: Speed Booster" value="<%= editScript ? editScript.name : '' %>" style="text-align: right; direction: rtl;">
+            
+            <label>السورس كود (Lua Code):</label>
+            <textarea name="sourceCode" rows="10" required placeholder="print('Hello World')"><%= editScript ? editScript.rawSource : '' %></textarea>
+            
+            <button type="submit"><%= editScript ? "UPDATE (تحديث سريع)" : "COMPILE & PROTECT (تشفير فوري)" %></button>
+            <% if (editScript) { %>
+                <a href="/" style="color: #ff5555; margin-right: 15px; text-decoration: none;">إلغاء التعديل</a>
+            <% } %>
+        </form>
+    </div>
+
+    <div class="panel">
+        <h3>المشاريع النشطة داخل السيرفر المحلي</h3>
+        <% if (Object.keys(scripts).length === 0) { %>
+            <p style="color: #6272a4;">لا توجد مشاريع مشفرة حالياً.</p>
+        <% } else { %>
+            <% for (let id in scripts) { %>
+                <div class="script-item">
+                    <div style="flex: 1; margin-left: 10px;">
+                        <strong style="color: #fff;"><%= scripts[id].name %></strong>
+                        <div class="loadstring-box">
+                            loadstring(game:HttpGet("http://localhost:3000/raw/<%= id %>"))()
+                        </div>
+                    </div>
+                    <div>
+                        <a href="/edit/<%= id %>"><button class="btn-edit">EDIT (تعديل)</button></a>
+                    </div>
+                </div>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    function showLoading() {
+        document.getElementById('loadingScreen').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
